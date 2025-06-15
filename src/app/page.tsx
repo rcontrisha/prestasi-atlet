@@ -1,103 +1,125 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { JSX } from "react";
+import { useRouter } from "next/navigation";
+import { Component as NavbarComponent } from "../components/navbar";
+import { Card, CardContent } from "../components/card";
+
+const HomePage = (): JSX.Element => {
+  const router = useRouter();
+
+  // Sports events data
+  const sportsEvents = [
+    {
+      key: "popda",
+      title: "POPDA",
+      description: "Pekan Olahraga Pelajar Daerah",
+      image: "/images/Popda Cover.png",
+    },
+    {
+      key: "peparpeda",
+      title: "PEPARPEDA",
+      description: "Pekan Paralimpik Pelajar Daerah",
+      image: "/images/image 2.png",
+    },
+    {
+      key: "kko",
+      title: "KKO",
+      description: "Kelas Khusus Olahraga",
+      image: "",
+    },
+    {
+      key: "o2sn_prov",
+      title: "O2SN Provinsi DIY",
+      description: "Olimpiade Olahraga Siswa Nasional",
+      image: "/images/o2sn.png",
+    },
+    {
+      key: "o2sn_nasional",
+      title: "O2SN Nasional",
+      description: "Olimpiade Olahraga Siswa Nasional",
+      image: "/images/o2sn.png",
+    },
+  ];
+
+  const handleCardClick = (eventKey: string) => {
+    router.push(`/event/${eventKey}`);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-white">
+      <NavbarComponent />
+      <hr
+        style={{
+          border: "none",
+          height: "1px",
+          backgroundColor: "#333",
+          borderRadius: "2px",
+          marginTop: "2px",
+        }}
+      />
+      <main className="p-8 text-gray-800 dark:text-white">
+        {/* Welcome Section */}
+        <section className="flex flex-col items-center text-center px-4 mt-32 mb-24">
+          <h1 className="[font-family:'Inter',Helvetica] font-semibold text-black text-[34px] tracking-[-0.68px] leading-[37.4px] max-w-[900px]">
+            Selamat Datang di Sentra Pembinaan Olahragawan Muda <br />
+            Kota Yogyakarta
+          </h1>
+          <p className="[font-family:'Inter',Helvetica] font-normal text-[#444444] text-base tracking-[0] leading-6 max-w-[708px] mt-6">
+            Sentra Pembinaan Olahragawan Muda (SPOM) Kota Yogyakarta merupakan
+            wadah untuk mengembangkan potensi dan prestasi atlet muda secara
+            berkelanjutan. Melalui program pelatihan yang terstruktur dan
+            pembinaan karakter, kami berkomitmen mencetak generasi atlet yang
+            tangguh, berprestasi, dan mengharumkan nama daerah di tingkat
+            regional maupun nasional.
+          </p>
+        </section>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        {/* Sports Events Section */}
+        <section className="flex flex-col items-center px-4 mb-24">
+          <div className="text-center mb-10">
+            <h2 className="[font-family:'Inter',Helvetica] font-semibold text-black text-[34px] tracking-[-0.68px] leading-[37.4px]">
+              Ajang Olahraga yang diikuti
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8 max-w-[760px]">
+            {sportsEvents.map((event, index) => (
+              <Card
+                key={index}
+                className="w-[232px] border-none shadow-none cursor-pointer"
+                onClick={() => handleCardClick(event.key)}
+              >
+                <CardContent className="p-0">
+                  <div className="relative w-full h-[232px] rounded-lg overflow-hidden shadow-[0px_4px_8px_#0000001a,0px_15px_15px_#00000017,0px_33px_20px_#0000000d,0px_59px_24px_#00000003,0px_93px_26px_transparent]">
+                    {event.image ? (
+                      <img
+                        className="absolute w-full h-full top-0 left-0 object-cover"
+                        alt={event.title}
+                        src={event.image}
+                      />
+                    ) : (
+                      <div className="bg-gray-300 w-full h-full flex items-center justify-center text-sm text-gray-600">
+                        Belum Ada Gambar
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <h3 className="[font-family:'Inter',Helvetica] font-medium text-black text-xl tracking-[0] leading-[30px]">
+                      {event.title}
+                    </h3>
+                    <p className="[font-family:'Inter',Helvetica] font-normal text-[#444444] text-base tracking-[0] leading-6">
+                      {event.description}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
-}
+};
+
+export default HomePage;

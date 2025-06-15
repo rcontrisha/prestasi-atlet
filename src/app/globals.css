@@ -1,8 +1,13 @@
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../../.flowbite-react/class-list.json";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --purple: #5533FF;
+  --purple-bg-light: rgba(85, 51, 255, 0.1);
+  --gray-text: #374151;
 }
 
 @theme inline {
@@ -23,4 +28,53 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar-override {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.custom-dropdown {
+  background-color: white !important;
+  color: var(--purple) !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.375rem !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dropdown-scroll-wrapper {
+  max-height: 15rem !important;
+  overflow-y: auto !important;
+  background-color: white !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.dropdown-scroll-wrapper::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
+.dropdown-item-custom {
+  color: var(--gray-text) !important;
+  padding: 0.5rem 1rem !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.dropdown-item-custom:hover {
+  background-color: var(--purple-bg-light) !important;
+  color: var(--purple) !important;
 }
