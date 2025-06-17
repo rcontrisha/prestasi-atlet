@@ -5,36 +5,20 @@ import { useParams } from "next/navigation";
 import CardGrid from "@/components/card-grid";
 import { Component as NavbarComponent } from "@/components/navbar";
 import MedalLineChart from "@/components/medal-line-chart";
-
-interface MedaliData {
-  total_emas: number;
-  total_perak: number;
-  total_perunggu: number;
-  total_seluruh: number;
-}
-
-interface MedalStat {
-  year: number;
-  total_target: number;
-  total_earned: number;
-}
-
-interface Sport {
-  id: number;
-  name: string;
-}
-
-interface KlasemenItem {
-  region: string;
-  emas: number;
-  perak: number;
-  perunggu: number;
-  total: number;
-  peringkat: number;
-}
+import {
+  fetchMedali,
+  fetchSports,
+  fetchChartData,
+  fetchYears,
+  fetchKlasemenByEvent,
+  MedaliData,
+  MedalStat,
+  Sport,
+  KlasemenItem,
+} from "@/lib/api";
 
 const EventPage = () => {
-  const { event } = useParams(); // ambil slug dari URL
+  const { event } = useParams();
   const eventSlug = typeof event === "string" ? event : "unknown";
 
   const [medali, setMedali] = useState<MedaliData | null>(null);
@@ -48,7 +32,6 @@ const EventPage = () => {
   );
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
-  // Event metadata map (bisa dipisah ke file kalau banyak)
   const eventNames: Record<string, string> = {
     popda: "POPDA",
     peparpeda: "PEPARPEDA",
@@ -61,38 +44,13 @@ const EventPage = () => {
 
   // Fetch total medali
   useEffect(() => {
-    const fetchMedali = async () => {
-      const headers = {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json",
-      };
-
-      const url =
-        selectedSport === "all"
-          ? `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_by_event`
-          : `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rekap_medali_per_cabor_per_tahun?sport_id=eq.${selectedSport}&event_name=eq.${eventTitle}`;
-
-      const options =
-        selectedSport === "all"
-          ? {
-              method: "POST",
-              headers,
-              body: JSON.stringify({ event_name_input: eventTitle }),
-            }
-          : { headers };
-
-      try {
-        const res = await fetch(url, options);
-        const data = await res.json();
-        if (data.length > 0) setMedali(data[0]);
-        else setMedali(null);
-      } catch (err) {
+    if (eventTitle === "Event") return;
+    fetchMedali(eventTitle, selectedSport)
+      .then((data) => setMedali(data))
+      .catch((err) => {
         console.error("Fetch medali error:", err);
-      }
-    };
-
-    if (eventTitle !== "Event") fetchMedali();
+        setMedali(null);
+      });
   }, [selectedSport, eventTitle]);
 
   useEffect(() => {
@@ -101,39 +59,14 @@ const EventPage = () => {
 
   // Fetch sports
   useEffect(() => {
-    fetch(
-      `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/sports_by_event_name?event_name=eq.${eventTitle}`,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        },
-      }
-    )
-      .then((res) => res.json())
+    fetchSports(eventTitle)
       .then((data) => setSports(data))
       .catch((err) => console.error("Fetch sports error:", err));
-  }, []);
+  }, [eventTitle]);
 
   // Fetch grafik
   useEffect(() => {
-    fetch(
-      "https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_dynamic",
-      {
-        method: "POST",
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: medalType,
-          sport_id_input: selectedSport,
-          event_name_input: eventTitle,
-        }),
-      }
-    )
-      .then((res) => res.json())
+    fetchChartData(medalType, selectedSport, eventTitle)
       .then((data) => {
         if (Array.isArray(data)) {
           const formatted = data.map((item: MedalStat) => ({
@@ -145,93 +78,28 @@ const EventPage = () => {
         }
       })
       .catch((err) => console.error("Chart fetch error:", err));
-  }, [medalType, selectedSport]);
+  }, [medalType, selectedSport, eventTitle]);
 
+  // Fetch years
   useEffect(() => {
-    const fetchYears = async (eventName: string) => {
-      try {
-        const res = await fetch(
-          `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/get_years_by_event_name`,
-          {
-            method: "POST",
-            headers: {
-              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ event_name_input: eventName }),
-          }
-        );
-
-        const data = await res.json();
+    fetchYears(eventTitle)
+      .then((data) => {
         if (Array.isArray(data)) {
           setEventYears(data);
           if (data.length > 0) {
-            setSelectedYear(data[data.length - 1].id); // default: terbaru
+            setSelectedYear(data[data.length - 1].id);
           }
         } else {
           console.warn("Invalid response for event years:", data);
         }
-      } catch (err) {
-        console.error("Fetch event years error:", err);
-      }
-    };
-
-    // ✅ Panggil fungsi fetch-nya
-    fetchYears(eventTitle);
-  }, [eventTitle]); // ← atau tambahkan dependensi yang sesuai
-
-  const fetchKlasemenByEvent = async (eventId: number) => {
-    try {
-      const res = await fetch(
-        "https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_klasemen_by_event",
-        {
-          method: "POST",
-          headers: {
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ event_id_input: eventId }),
-        }
-      );
-
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Fetch klasemen error:", error);
-        return;
-      }
-
-      const data = await res.json();
-      setKlasemen(data);
-    } catch (err) {
-      console.error("Fetch klasemen error:", err);
-    }
-  };
-
-  // ✅ Trigger fetch klasemen saat selectedYear berubah
-  useEffect(() => {
-    if (selectedYear !== null) {
-      fetchKlasemenByEvent(selectedYear);
-    }
-  }, [selectedYear]);
+      })
+      .catch((err) => console.error("Fetch event years error:", err));
+  }, [eventTitle]);
 
   // Fetch klasemen
   useEffect(() => {
-    if (!selectedYear) return;
-    fetch(
-      "https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_klasemen_by_event",
-      {
-        method: "POST",
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ event_id_input: selectedYear }),
-      }
-    )
-      .then((res) => res.json())
+    if (selectedYear === null) return;
+    fetchKlasemenByEvent(selectedYear)
       .then((data) => setKlasemen(data))
       .catch((err) => console.error("Klasemen error:", err));
   }, [selectedYear]);

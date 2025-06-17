@@ -78,3 +78,24 @@ body {
   background-color: var(--purple-bg-light) !important;
   color: var(--purple) !important;
 }
+
+/* Dropdown label tampil polos seperti link lain */
+.dropdown-plain > button,
+.dropdown-plain > .inline-flex {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #4b5563 !important; /* text-gray-600 */
+  font-weight: 600 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  height: auto !important;
+}
+
+/* Hilangkan efek hover/border pada label */
+.dropdown-plain > button:hover,
+.dropdown-plain > .inline-flex:hover {
+  background: none !important;
+  color: #4b5563 !important;
+  box-shadow: none !important;
+}

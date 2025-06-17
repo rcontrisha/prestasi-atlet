@@ -1,79 +1,131 @@
-// lib/api.ts
-
-const BASE_URL = 'https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1';
-const API_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const HEADERS = {
-  apikey: API_KEY,
-  Authorization: `Bearer ${API_KEY}`,
-  'Content-Type': 'application/json',
-};
-
-export async function fetchEventYears() {
-  const res = await fetch(`${BASE_URL}/events?select=id,year`, { headers: HEADERS });
-  if (!res.ok) throw new Error('Failed to fetch events');
-  return res.json();
+export interface MedaliData {
+  total_emas: number;
+  total_perak: number;
+  total_perunggu: number;
+  total_seluruh: number;
 }
 
-export async function fetchYearsByEventName(eventName: string) {
-  const res = await fetch(`${BASE_URL}/rpc/get_years_by_event_name`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({ event_name_input: eventName }),
-  });
-  if (!res.ok) throw new Error('Failed to fetch years');
-  return res.json();
+export interface MedalStat {
+  year: number;
+  total_target: number;
+  total_earned: number;
 }
 
-export async function fetchSports(eventName: string) {
-  const res = await fetch(`${BASE_URL}/sports_by_event_name?event_name=eq.${eventName}`, {
-    headers: HEADERS,
-  });
-  if (!res.ok) throw new Error('Failed to fetch sports');
-  return res.json();
+export interface Sport {
+  id: number;
+  name: string;
 }
 
-export async function fetchMedali(eventTitle: string, selectedSport: string) {
+export interface KlasemenItem {
+  region: string;
+  emas: number;
+  perak: number;
+  perunggu: number;
+  total: number;
+  peringkat: number;
+}
+
+export const fetchMedali = async (
+  eventTitle: string,
+  selectedSport: string
+): Promise<MedaliData | null> => {
+  const headers = {
+    apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+    "Content-Type": "application/json",
+  };
+
   const url =
-    selectedSport === 'all'
-      ? `${BASE_URL}/rpc/rekap_medali_by_event`
-      : `${BASE_URL}/rekap_medali_per_cabor_per_tahun?sport_id=eq.${selectedSport}&event_name=eq.${eventTitle}`;
+    selectedSport === "all"
+      ? `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_by_event`
+      : `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rekap_medali_per_cabor_per_tahun?sport_id=eq.${selectedSport}&event_name=eq.${eventTitle}`;
 
   const options =
-    selectedSport === 'all'
+    selectedSport === "all"
       ? {
-          method: 'POST',
-          headers: HEADERS,
+          method: "POST",
+          headers,
           body: JSON.stringify({ event_name_input: eventTitle }),
         }
-      : { headers: HEADERS };
+      : { headers };
 
   const res = await fetch(url, options);
-  if (!res.ok) throw new Error('Failed to fetch medali');
+  const data = await res.json();
+  if (Array.isArray(data) && data.length > 0) return data[0];
+  return null;
+};
+
+export const fetchSports = async (
+  eventTitle: string
+): Promise<Sport[]> => {
+  const res = await fetch(
+    `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/sports_by_event_name?event_name=eq.${eventTitle}`,
+    {
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+      },
+    }
+  );
   return res.json();
-}
+};
 
-export async function fetchChartData(eventTitle: string, medalType: string, selectedSport: string) {
-  const res = await fetch(`${BASE_URL}/rpc/rekap_medali_dynamic`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({
-      type: medalType,
-      sport_id_input: selectedSport,
-      event_name_input: eventTitle,
-    }),
-  });
-
-  if (!res.ok) throw new Error('Failed to fetch chart data');
+export const fetchChartData = async (
+  medalType: string,
+  selectedSport: string,
+  eventTitle: string
+): Promise<MedalStat[]> => {
+  const res = await fetch(
+    "https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_dynamic",
+    {
+      method: "POST",
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: medalType,
+        sport_id_input: selectedSport,
+        event_name_input: eventTitle,
+      }),
+    }
+  );
   return res.json();
-}
+};
 
-export async function fetchKlasemen(eventId: number) {
-  const res = await fetch(`${BASE_URL}/rpc/rekap_medali_klasemen_by_event`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({ event_id_input: eventId }),
-  });
-
-  if (!res.ok) throw new Error('Failed to fetch klasemen');
+export const fetchYears = async (
+  eventTitle: string
+): Promise<{ id: number; year: number }[]> => {
+  const res = await fetch(
+    `https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/get_years_by_event_name`,
+    {
+      method: "POST",
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ event_name_input: eventTitle }),
+    }
+  );
   return res.json();
-}
+};
+
+export const fetchKlasemenByEvent = async (
+  eventId: number
+): Promise<KlasemenItem[]> => {
+  const res = await fetch(
+    "https://myxbovlmtuhelgnlzpqt.supabase.co/rest/v1/rpc/rekap_medali_klasemen_by_event",
+    {
+      method: "POST",
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ event_id_input: eventId }),
+    }
+  );
+  return res.json();
+};
