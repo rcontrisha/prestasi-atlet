@@ -25,6 +25,13 @@ export interface KlasemenItem {
   peringkat: number;
 }
 
+export interface DashboardStats {
+  totalEvent: number;
+  totalCabor: number;
+  totalMedali: number;
+  totalPesertaSpom: number;
+}
+
 export const fetchMedali = async (
   eventTitle: string,
   selectedSport: string
@@ -127,5 +134,11 @@ export const fetchKlasemenByEvent = async (
       body: JSON.stringify({ event_id_input: eventId }),
     }
   );
+  return res.json();
+};
+
+export const fetchDashboardStats = async (): Promise<DashboardStats> => {
+  const res = await fetch("/api/admin-dashboard");
+  if (!res.ok) throw new Error("Gagal mengambil data dashboard");
   return res.json();
 };

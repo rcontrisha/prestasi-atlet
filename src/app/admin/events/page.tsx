@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import AdminNavbar from "@/components/AdminNavbar";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 interface EventItem {
   id: number;
@@ -135,15 +136,15 @@ const AdminEventsPage = () => {
 
         {/* Modal Tambah Event */}
         {showAdd && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/10 z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
-              <h2 className="text-lg font-bold mb-4">Tambah Event Baru</h2>
+              <h2 className="text-lg font-bold mb-4 text-gray-700">Tambah Event Baru</h2>
               {["Nama Event", "Tahun", "Lokasi"].map((label, i) => (
                 <div key={label} className="mb-3">
-                  <label className="block mb-1 text-sm">{label}</label>
+                  <label className="block mb-1 text-sm text-gray-700">{label}</label>
                   <input
                     type={label === "Tahun" ? "number" : "text"}
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border rounded px-3 py-2 text-gray-700"
                     value={
                       i === 0 ? newEvent.name : i === 1 ? newEvent.year : newEvent.location
                     }
@@ -160,7 +161,7 @@ const AdminEventsPage = () => {
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   onClick={() => setShowAdd(false)}
-                  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
                   disabled={adding}
                 >
                   Batal
@@ -181,4 +182,10 @@ const AdminEventsPage = () => {
   );
 };
 
-export default AdminEventsPage;
+export default function ProtectedEventsPage() {
+  return (
+    <AdminProtectedRoute>
+      <AdminEventsPage />
+    </AdminProtectedRoute>
+  );
+}

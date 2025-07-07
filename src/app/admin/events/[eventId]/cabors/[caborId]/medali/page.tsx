@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import AdminNavbar from "@/components/AdminNavbar";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 interface MedalStat {
   id: number;
@@ -449,4 +450,10 @@ const MedalPage = () => {
   );
 };
 
-export default MedalPage;
+export default function ProtectedEventsPage() {
+  return (
+    <AdminProtectedRoute>
+      <MedalPage />
+    </AdminProtectedRoute>
+  );
+}

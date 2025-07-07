@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import AdminNavbar from "@/components/AdminNavbar";
 import { useRouter } from "next/navigation";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 interface SpomItem {
   year: number;
@@ -341,4 +342,10 @@ const AdminSpomPage = () => {
   );
 };
 
-export default AdminSpomPage;
+export default function ProtectedEventsPage() {
+  return (
+    <AdminProtectedRoute>
+      <AdminSpomPage />
+    </AdminProtectedRoute>
+  );
+}

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import AdminNavbar from "@/components/AdminNavbar";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 interface SpomDetail {
   id: number;
@@ -373,4 +374,10 @@ const SpomDetailPage = () => {
   );
 };
 
-export default SpomDetailPage;
+export default function ProtectedEventsPage() {
+  return (
+    <AdminProtectedRoute>
+      <SpomDetailPage />
+    </AdminProtectedRoute>
+  );
+}

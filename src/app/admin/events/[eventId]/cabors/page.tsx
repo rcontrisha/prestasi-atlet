@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import AdminNavbar from "@/components/AdminNavbar";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 interface CaborItem {
   id: number;
@@ -489,4 +490,10 @@ const CaborsPage = () => {
   );
 };
 
-export default CaborsPage;
+export default function ProtectedEventsPage() {
+  return (
+    <AdminProtectedRoute>
+      <CaborsPage />
+    </AdminProtectedRoute>
+  );
+}
